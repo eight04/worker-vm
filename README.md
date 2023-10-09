@@ -28,13 +28,19 @@ vm.close(); // terminate the worker
 Permissions
 -----------
 
-* `--unstable` - the deno permissions in worker option is unstable.
+* `--unstable` - permission options in worker is an unstable feature.
 * `--allow-read=path/to/worker.ts` - to launch the worker.
 
 The code may terminate the worker
 ---------------------------------
 
 Although Deno is able to block disk/network access, we can't prevent the code from calling `self.close()`. If this happens, the worker will be terminated. All calls to `vm.run` will timeout.
+
+Similar projects
+----------------
+
+* [vm2](https://www.npmjs.com/package/vm2) - discontinued.
+* [isolated-vm](https://github.com/laverdet/isolated-vm) - a much more powerful vm that runs in node. However, it has to be built from source when installing.
 
 Changelog
 ---------
