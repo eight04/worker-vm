@@ -1,7 +1,7 @@
 worker-vm
 =========
 
-![Github Build](https://github.com/eight04/worker-vm/workflows/.github/workflows/test.yml/badge.svg)
+[![test](https://github.com/eight04/worker-vm/actions/workflows/test.yml/badge.svg)](https://github.com/eight04/worker-vm/actions/workflows/test.yml)
 
 A `vm` library built on top of Deno's worker.
 
