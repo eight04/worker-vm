@@ -36,6 +36,15 @@ The code may terminate the worker
 
 Although Deno is able to block disk/network access, we can't prevent the code from calling `self.close()`. If this happens, the worker will be terminated. All calls to `vm.run` will timeout.
 
+XXX is not cloneable
+--------------------
+
+Data must be cloneable to be passed to the worker:
+
+* `VM.call` - function arguments are JSON-cloned.
+* The result of `VM.run` - throws an error if it is not cloneable.
+* `VM.on("console")` - function arguments are JSON-cloned.
+
 Similar projects
 ----------------
 

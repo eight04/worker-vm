@@ -1,15 +1,58 @@
-export class VM {
+export interface ConsoleEvent extends CustomEvent {
+  detail: {
+    type: "console";
+    method: string;
+    args: any[];
+  };
+}
+
+export interface VMEventMap {
+  console: ConsoleEvent;
+}
+
+export interface VMEventTarget extends EventTarget {
+  addEventListener<K extends keyof VMEventMap>(
+    type: K,
+    listener: (this: VM, ev: VMEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  removeEventListener<K extends keyof VMEventMap>(
+    type: K,
+    listener: (this: VM, ev: VMEventMap[K]) => any,
+    options?: boolean | EventListenerOptions
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions
+  ): void;
+}
+
+/**
+ * This class extends EventTarget. You can listen to "console" event to get
+ * console output from the worker.
+ *
+ * @event VM#console
+ * @type {ConsoleEvent}
+ */
+export class VM extends EventTarget implements VMEventTarget {
   worker: Worker;
   id: number;
   messagePool: Map<number, { resolve: (value: any) => void, reject: (reason?: any) => void, ts: number, timeoutId: number }>;
   dead: boolean;
   timeoutMs: number;
-  timeoutId: number;
   /**
    * Create a new worker VM instance.
+   *
    * @param timeoutMs Timeout for each run() call in milliseconds. Default: 30 seconds.
    */
   constructor({timeoutMs = 30 * 1000}: {timeoutMs?: number} = {}) {
+    super();
     this.worker = new Worker(new URL("./worker.ts", import.meta.url), {
       type: "module",
       deno: {
@@ -17,6 +60,12 @@ export class VM {
       }
     });
     this.worker.addEventListener("message", (e) => {
+      if (e.data.type === "console") {
+        this.dispatchEvent(new CustomEvent("console", {
+          detail: e.data
+        }));
+        return;
+      }
       if (!this.messagePool.has(e.data.id)) {
         return;
       }
@@ -39,7 +88,6 @@ export class VM {
     this.messagePool = new Map;
     this.dead = false;
     this.timeoutMs = timeoutMs;
-    this.timeoutId = 0;
   }
   /**
    * Run code in the VM and return the result.
@@ -67,7 +115,7 @@ export class VM {
     });
   }
   /**
-   * Call a function in the VM and return the result.
+   * Call a function in the VM and return the result. This method uses run() under the hood.
    *
    * @param name Name of the function to run. It can be any identifer, including a property access.
    * @param args Arguments to pass to the function.
