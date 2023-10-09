@@ -54,6 +54,10 @@ Similar projects
 Changelog
 ---------
 
+* 0.2.0 (Oct 10, 2023)
+
+  - Add: capture console output.
+
 * 0.1.2 (Oct 10, 2023)
 
   - Update reamde.
