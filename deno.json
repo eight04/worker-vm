@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "test": "deno test --unstable --allow-read=worker.ts --trace-ops --fail-fast --coverage=cov_profile && deno coverage cov_profile",
+    "version": "deno run -A https://deno.land/x/version@v1.1.1/index.ts"
+  }
+}
