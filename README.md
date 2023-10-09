@@ -45,6 +45,10 @@ Similar projects
 Changelog
 ---------
 
+* 0.1.2 (Oct 10, 2023)
+
+  - Update reamde.
+
 * 0.1.0 (Oct 9, 2023)
 
   - Initial release.
