@@ -1,4 +1,19 @@
 {
+  const _console = console;
+  self.console = new Proxy(_console, {
+    get: (target, prop) => {
+      return (...args: any[]) => {
+        // @ts-ignore
+        self.postMessage({
+          type: "console",
+          method: prop,
+          args: JSON.parse(JSON.stringify(args))
+        });
+      };
+    }
+  });
+
+
   self.addEventListener("message", (e_) => {
     const e = e_ as MessageEvent;
     const code = e.data.code;

@@ -53,3 +53,20 @@ Deno.test("timeout", withVM(async (vm) => {
   const err = await assertRejects(() => vm.run("self.close()"));
   assertStringIncludes(String(err), "Timeout");
 }, {timeoutMs: 1000}));
+
+Deno.test("console", withVM(async (vm: VM) => {
+  let e;
+  vm.addEventListener("console", (_e) => {
+    e = _e;
+  });
+  await vm.run("console.log('test')");
+  assertEquals(e!.detail.type, "console");
+  assertEquals(e!.detail.method, "log");
+  assertEquals(e!.detail.args, ["test"]);
+}));
+
+Deno.test("Deno.open", withVM(async (vm) => {
+  const err = await assertRejects(() => vm.run("Deno.open('test')"));
+  assertStringIncludes(String(err), "PermissionDenied");
+}));
+
