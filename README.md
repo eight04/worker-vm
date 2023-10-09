@@ -9,7 +9,7 @@ Usage
 ------
 
 ```ts
-import {VM} from "https://deno.land/x/worker-vm@0.1.0/mod.ts";
+import { VM } from "https://deno.land/x/worker_vm@v0.1.1/mod.ts";
 
 const vm = new VM(); // create a new VM Worker
 
