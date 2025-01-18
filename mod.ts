@@ -1,3 +1,25 @@
+// Inspired: https://github.com/graphext/worker-vm/blob/6bb5634dab905c9d041fb0d83cb174f8f9a9a380/mod.ts#L9
+
+// Based on: https://github.com/denoland/deno/blob/main/cli/tsc/dts/lib.deno.ns.d.ts#L549
+type PermissionOptionsObject = {
+  env?: "inherit" | boolean | string[];
+  ffi?: "inherit" | boolean | Array<string | URL>;
+  import?: "inherit" | boolean | Array<string>;
+  net?: "inherit" | boolean | string[];
+  read?: "inherit" | boolean | Array<string | URL>;
+  run?: "inherit" | boolean | Array<string | URL>;
+  sys?: "inherit" | boolean | string[];
+  write?: "inherit" | boolean | Array<string | URL>;
+};
+
+// Based on: https://github.com/denoland/deno/blob/main/cli/tsc/dts/lib.deno.ns.d.ts#L542
+type PermissionOptions = "inherit" | "none" | PermissionOptionsObject;
+
+// Based on: https://github.com/denoland/deno/blob/17d6e66ee336057954ab22544f30ea2761991a25/cli/tsc/dts/lib.deno.unstable.d.ts#L1352
+// type DenoPermissionOptions = {
+//   permission?: PermissionOptions;
+// };
+
 export interface ConsoleEvent extends CustomEvent {
   detail: {
     type: "console";
@@ -43,27 +65,45 @@ export interface VMEventTarget extends EventTarget {
 export class VM extends EventTarget implements VMEventTarget {
   worker: Worker;
   id: number;
-  messagePool: Map<number, { resolve: (value: any) => void, reject: (reason?: any) => void, ts: number, timeoutId: number }>;
+  messagePool: Map<
+    number,
+    {
+      resolve: (value: any) => void;
+      reject: (reason?: any) => void;
+      ts: number;
+      timeoutId: number;
+    }
+  >;
   dead: boolean;
   timeoutMs: number;
   /**
    * Create a new worker VM instance.
    *
-   * @param timeoutMs Timeout for each run() call in milliseconds. Default: 30 seconds.
+   * @param timeoutMs Timeout for each run() call in milliseconds. Default: `30 * 1000`.
+   * @param permissionOptions Optional permissions for Deno Worker. This parameter's only taken into account if Deno is run with `--unstable-worker-options` option. Default: `"none"`
    */
-  constructor({timeoutMs = 30 * 1000}: {timeoutMs?: number} = {}) {
+  constructor({
+    timeoutMs = 30 * 1000,
+    permissionOptions = "none",
+  }: {
+    timeoutMs?: number;
+    permissionOptions?: PermissionOptions;
+  } = {}) {
     super();
     this.worker = new Worker(new URL("./worker.ts", import.meta.url), {
       type: "module",
+      // NOTE: If TS error occurs, it's because this option is new and only available if running Deno with `--unstable-worker-options`
       deno: {
-        permissions: "none"
-      }
+        permissions: permissionOptions,
+      },
     });
     this.worker.addEventListener("message", (e) => {
       if (e.data.type === "console") {
-        this.dispatchEvent(new CustomEvent("console", {
-          detail: e.data
-        }));
+        this.dispatchEvent(
+          new CustomEvent("console", {
+            detail: e.data,
+          })
+        );
         return;
       }
       if (!this.messagePool.has(e.data.id)) {
@@ -79,13 +119,15 @@ export class VM extends EventTarget implements VMEventTarget {
       this.messagePool.delete(e.data.id);
     });
     const onerror = (e: Event | ErrorEvent) => {
-      const err = new Error((e as ErrorEvent).message || (e as ErrorEvent).error || "Unknown error");
+      const err = new Error(
+        (e as ErrorEvent).message || (e as ErrorEvent).error || "Unknown error"
+      );
       this.close(err);
     };
     this.worker.addEventListener("error", onerror);
     this.worker.addEventListener("messageerror", onerror);
     this.id = 1;
-    this.messagePool = new Map;
+    this.messagePool = new Map();
     this.dead = false;
     this.timeoutMs = timeoutMs;
   }
@@ -110,7 +152,7 @@ export class VM extends EventTarget implements VMEventTarget {
       this.messagePool.set(id, { resolve, reject, ts: Date.now(), timeoutId });
       this.worker.postMessage({
         id,
-        code
+        code,
       });
     });
   }
@@ -121,7 +163,9 @@ export class VM extends EventTarget implements VMEventTarget {
    * @param args Arguments to pass to the function.
    */
   call(name: string, ...args: any[]) {
-    return this.run(`${name}(${args.map((arg) => JSON.stringify(arg)).join(",")})`);
+    return this.run(
+      `${name}(${args.map((arg) => JSON.stringify(arg)).join(",")})`
+    );
   }
   /**
    * Close the VM.
