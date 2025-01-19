@@ -1,25 +1,3 @@
-// Inspired: https://github.com/graphext/worker-vm/blob/6bb5634dab905c9d041fb0d83cb174f8f9a9a380/mod.ts#L9
-
-// Based on: https://github.com/denoland/deno/blob/main/cli/tsc/dts/lib.deno.ns.d.ts#L549
-type PermissionOptionsObject = {
-  env?: "inherit" | boolean | string[];
-  ffi?: "inherit" | boolean | Array<string | URL>;
-  import?: "inherit" | boolean | Array<string>;
-  net?: "inherit" | boolean | string[];
-  read?: "inherit" | boolean | Array<string | URL>;
-  run?: "inherit" | boolean | Array<string | URL>;
-  sys?: "inherit" | boolean | string[];
-  write?: "inherit" | boolean | Array<string | URL>;
-};
-
-// Based on: https://github.com/denoland/deno/blob/main/cli/tsc/dts/lib.deno.ns.d.ts#L542
-type PermissionOptions = "inherit" | "none" | PermissionOptionsObject;
-
-// Based on: https://github.com/denoland/deno/blob/17d6e66ee336057954ab22544f30ea2761991a25/cli/tsc/dts/lib.deno.unstable.d.ts#L1352
-// type DenoPermissionOptions = {
-//   permission?: PermissionOptions;
-// };
-
 export interface ConsoleEvent extends CustomEvent {
   detail: {
     type: "console";
@@ -80,23 +58,24 @@ export class VM extends EventTarget implements VMEventTarget {
    * Create a new worker VM instance.
    *
    * @param timeoutMs Timeout for each run() call in milliseconds. Default: `30 * 1000`.
-   * @param permissionOptions Optional permissions for Deno Worker. This parameter's only taken into account if Deno is run with `--unstable-worker-options` option. Default: `"none"`
+   * @param permissions Permissions for Deno Worker, only taken into account if `deno` command is run with `--unstable-worker-options` option. Default: `"none"`
    */
   constructor({
     timeoutMs = 30 * 1000,
-    permissionOptions = "none",
+    permissions = "none",
   }: {
     timeoutMs?: number;
-    permissionOptions?: PermissionOptions;
+    // Inspired: https://github.com/graphext/worker-vm/blob/6bb5634dab905c9d041fb0d83cb174f8f9a9a380/mod.ts#L9
+    permissions?: Deno.PermissionOptions;
   } = {}) {
     super();
     this.worker = new Worker(new URL("./worker.ts", import.meta.url), {
       type: "module",
       // NOTE: If TS error occurs, it's because this option is new and only available if running Deno with `--unstable-worker-options`
       deno: {
-        permissions: permissionOptions,
+        permissions,
       },
-    });
+    } as WorkerOptions);
     this.worker.addEventListener("message", (e) => {
       if (e.data.type === "console") {
         this.dispatchEvent(
