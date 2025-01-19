@@ -11,7 +11,7 @@ import { VM } from "https://deno.land/x/worker_vm@v0.1.1/mod.ts";
 
 const vm = new VM({
   timeoutMs: 30 * 1000,
-  permissionOptions: "none" // { "net": ["example.com:443"], "read": ["foo.txt", "bar.txt"]}
+  permissions: "none", // { "net": ["jsonplaceholder.typicode.com:443"], "read": ["foo.txt", "bar.txt"]}
 }); // create a new VM Worker
 
 console.log(await vm.run("1 + 1")); // run code in the worker
@@ -26,16 +26,16 @@ console.log(await vm.call("sum", 2, 3)); // 5
 vm.close(); // terminate the worker
 ```
 
-## Permissions
+### Testing
 
-### Default
+```sh
+$ deno test --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --unstable-worker-options mod_test.ts
+```
+
+## Default permissions
 
 - `--unstable` - permission options in worker is an unstable feature.
 - `--allow-read=path/to/worker.ts` - to launch the worker.
-
-### Custom
-
-- `--allow-[read,write,net,env,sys,run,ffi,import]=...` - user can specify different permissions via `permissionOptions` to adapt to their use cases.
 
 ## FAQ
 
@@ -51,9 +51,11 @@ Data must be cloneable to be passed to the worker:
 - The result of `VM.run` - throws an error if it is not cloneable.
 - `VM.on("console")` - function arguments are JSON-cloned.
 
-### Requires net access to "example.com:443", run again with the --allow-net flag
+### Requires net/read/write/... access to
 
-`worker-vm` is secure by default due to its restrictive initial permissions. To make network operations, please specify `permissionOptions` when creating new `VM()`.
+`worker-vm` provides a secure execution environment by default through restrictive permissions enforced by the parent thread created when running `deno` CLI. A Worker CAN NOT be granted more permissions than its parent, only stricter.
+
+When creating `VM({permissions: ...})` with custom permissions, make sure that parent thread share the same or broader permissions.
 
 ## Similar projects
 
@@ -62,9 +64,9 @@ Data must be cloneable to be passed to the worker:
 
 ## Changelog
 
-- 0.3.0 (Jan 18, 2025)
+- next (Jan 19, 2025)
 
-  - Add: optional permissions.
+  - Add: `permissions` option.
 
 - 0.2.0 (Oct 10, 2023)
 
