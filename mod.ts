@@ -1,3 +1,5 @@
+/// <reference types="./lib.deno.d.ts" />
+
 export interface ConsoleEvent extends CustomEvent {
   detail: {
     type: "console";
@@ -75,7 +77,7 @@ export class VM extends EventTarget implements VMEventTarget {
       deno: {
         permissions,
       },
-    } as WorkerOptions);
+    });
     this.worker.addEventListener("message", (e) => {
       if (e.data.type === "console") {
         this.dispatchEvent(
