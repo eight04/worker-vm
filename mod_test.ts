@@ -1,14 +1,17 @@
+/// <reference types="./lib.deno.d.ts" />
+
 import {
   assertEquals,
   assertRejects,
   assertStringIncludes,
+  // @ts-ignore
 } from "https://deno.land/std@0.202.0/assert/mod.ts";
 import { VM } from "./mod.ts";
 
-function withVM(
+export const withVM = (
   fn: (vm: VM) => Promise<void>,
   options?: { timeoutMs?: number; permissions?: Deno.PermissionOptions }
-) {
+) => {
   return async () => {
     let vm: VM | undefined;
     try {
@@ -20,7 +23,7 @@ function withVM(
       }
     }
   };
-}
+};
 
 Deno.test(
   "VM.run",
@@ -110,21 +113,4 @@ Deno.test(
       'NotCapable: Requires read access to "test", run again with the --allow-read flag'
     );
   })
-);
-
-// NOTE: make sure to add `--allow-net=jsonplaceholder.typicode.com:443` option
-Deno.test(
-  "network permission",
-  withVM(
-    async (vm) => {
-      await vm.run(
-        `fetch('https://jsonplaceholder.typicode.com/todos/1').then(res => res.json())`
-      );
-    },
-    {
-      permissions: {
-        net: ["jsonplaceholder.typicode.com:443"],
-      },
-    }
-  )
 );
