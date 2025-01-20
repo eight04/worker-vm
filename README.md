@@ -26,15 +26,9 @@ console.log(await vm.call("sum", 2, 3)); // 5
 vm.close(); // terminate the worker
 ```
 
-### Testing
-
-```sh
-$ deno test --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --unstable-worker-options mod_test.ts
-```
-
 ## Default permissions
 
-- `--unstable` - permission options in worker is an unstable feature.
+- `--unstable-worker-options` - permission options in worker is an unstable feature.
 - `--allow-read=path/to/worker.ts` - to launch the worker.
 
 ## FAQ
@@ -53,9 +47,29 @@ Data must be cloneable to be passed to the worker:
 
 ### Requires net/read/write/... access to
 
-`worker-vm` provides a secure execution environment by default through restrictive permissions enforced by the parent thread created when running `deno` CLI. A Worker CAN NOT be granted more permissions than its parent, only stricter.
+`worker-vm` provides a secure execution environment by default through restrictive permissions enforced by the parent thread. The parent thread is created when running `deno` CLI. A Worker CAN NOT be granted more permissions than its parent, only stricter.
 
-When creating `VM({permissions: ...})` with custom permissions, make sure that parent thread share the same or broader permissions.
+When creating `VM({permissions: ...})` with custom `permissions`, make sure that parent thread share the same or broader permissions.
+
+## For contributors
+
+### Testing
+
+```sh
+$ deno task test
+```
+
+### Update Deno built-in types
+
+```sh
+$ deno task types
+```
+
+### Recreate `deno.lock`
+
+```sh
+$ deno cache mod.ts
+```
 
 ## Similar projects
 
