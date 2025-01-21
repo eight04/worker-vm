@@ -3,9 +3,8 @@
     "types": "deno types --unstable-worker-options > lib.deno.d.ts",
     "version": "deno run -A https://deno.land/x/version@v1.1.1/index.ts",
     "push": "git push --atomic origin master v$(deno task version get)",
-
-    "test": "deno task test-net && deno task test-no-net && deno test --unstable-worker-options --allow-read=worker.ts --fail-fast --no-check --coverage=cov_profile mod_test.ts && deno coverage cov_profile",
-    "test-net": "deno test --unstable-worker-options --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --filter=\"network permission granted\" --fail-fast --no-check mod_net_test.ts",
-    "test-no-net": "deno test --unstable-worker-options --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --filter=\"network permission denied\" --fail-fast --no-check mod_net_test.ts"
+    "test": "deno task test-net && deno task test-no-net && deno test --unstable-worker-options --allow-env --allow-read=worker.ts --fail-fast --no-check --coverage=cov_profile && deno coverage cov_profile",
+    "test-net": "NET=1 deno test --unstable-worker-options --allow-env --filter=\"network permission allowed\" --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --fail-fast --no-check",
+    "test-no-net": "NO_NET=1 deno test --unstable-worker-options --allow-env --filter=\"network permission denied\" --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --fail-fast --no-check"
   }
 }
