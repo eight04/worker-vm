@@ -33,6 +33,14 @@ vm.close(); // terminate the worker
 
 ## FAQ
 
+### `NotCapable` error not found
+
+According to Deno documentation [`Deno.errors.NotCapable`](https://docs.deno.com/api/deno/~/Deno.errors.NotCapable):
+
+> Before Deno 2.0, this condition was covered by the PermissionDenied error.
+
+Install `deno` version 2.0 or later should resolve the issue.
+
 ### The code may terminate the worker
 
 Although Deno is able to block disk/network access by default, we can't prevent the code from calling `self.close()`. If this happens, the worker will be terminated. All calls to `vm.run` will timeout.
