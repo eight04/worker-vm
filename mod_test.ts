@@ -4,7 +4,6 @@ import {
   assertEquals,
   assertRejects,
   assertStringIncludes,
-  // @ts-ignore
 } from "https://deno.land/std@0.202.0/assert/mod.ts";
 import { VM } from "./mod.ts";
 
@@ -116,11 +115,11 @@ Deno.test({
 });
 
 Deno.test({
-  name: "network permission allowed",
+  name: "network access",
   fn: withVM(
     async (vm) => {
       const obj = await vm.run(
-        `json = fetch('https://jsonplaceholder.typicode.com/todos/1').then(res => res.json())`
+        `fetch('https://jsonplaceholder.typicode.com/todos/1').then(res => res.json())`
       );
 
       assertEquals(obj, {
@@ -136,26 +135,51 @@ Deno.test({
       },
     }
   ),
-  ignore: Boolean(!Deno.env.get("NET")),
+  ignore: !+(Deno.env.get("ALLOW_NET") ?? 0),
 });
 
 Deno.test({
-  name: "network permission denied",
-  fn: withVM(
-    async (vm) => {
-      const err = await assertRejects(() =>
-        vm.run(`fetch('https://jsonplaceholder.typicode.com/todos/1')`)
-      );
-      assertStringIncludes(
-        String(err),
-        `NotCapable: Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
-      );
-    },
-    {
-      permissions: {
-        net: [], // empty
-      },
-    }
-  ),
-  ignore: Boolean(!Deno.env.get("NO_NET")),
+  name: "no network access when permissions is not set",
+  fn: withVM(async (vm) => {
+    const err = await assertRejects(() =>
+      vm.run(`fetch('https://jsonplaceholder.typicode.com/todos/1')`)
+    );
+    assertStringIncludes(
+      String(err),
+      `NotCapable: Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
+    );
+  }),
+  ignore: !+(Deno.env.get("ALLOW_NET") ?? 0),
+});
+
+Deno.test({
+  name: "no network access",
+  fn: withVM(async (vm) => {
+    const err = await assertRejects(() =>
+      vm.run(`fetch('https://jsonplaceholder.typicode.com/todos/1')`)
+    );
+    assertStringIncludes(
+      String(err),
+      `NotCapable: Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
+    );
+  }),
+  ignore: Boolean(+(Deno.env.get("ALLOW_NET") ?? 0)),
+});
+
+Deno.test({
+  name: "no network access because permission can't be broader than parent",
+  fn: async () => {
+    const err = await assertRejects(async () => {
+      new VM({
+        permissions: {
+          net: ["jsonplaceholder.typicode.com:443"],
+        },
+      });
+    });
+    assertStringIncludes(
+      String(err),
+      `NotCapable: Can't escalate parent thread permissions`
+    );
+  },
+  ignore: Boolean(+(Deno.env.get("ALLOW_NET") ?? 0)),
 });
