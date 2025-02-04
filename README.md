@@ -11,7 +11,7 @@ import { VM } from "https://deno.land/x/worker_vm@v0.1.1/mod.ts";
 
 const vm = new VM({
   timeoutMs: 30 * 1000,
-  permissions: "none", // { "net": ["jsonplaceholder.typicode.com:443"], "read": ["foo.txt", "bar.txt"]}
+  permissions: "none",
 }); // create a new VM Worker
 
 console.log(await vm.run("1 + 1")); // run code in the worker
@@ -47,9 +47,14 @@ Data must be cloneable to be passed to the worker:
 
 ### Requires net/read/write/... access to
 
-`worker-vm` provides a secure execution environment by default through restrictive permissions enforced by the parent thread. The parent thread is created when running `deno` CLI. A Worker CAN NOT be granted more permissions than its parent, only stricter.
+Grant specific permissions to `worker-vm` by creating new VM with `permissions:` option:
 
-When creating `VM({permissions: ...})` with custom `permissions`, make sure that parent thread share the same or broader permissions.
+```js
+const vm = new VM({
+  // https://docs.deno.com/api/web/~/WorkerOptions.deno#property_permissions
+  permissions: // ...
+});
+```
 
 ## For contributors
 
@@ -63,12 +68,6 @@ $ deno task test
 
 ```sh
 $ deno task types
-```
-
-### Recreate `deno.lock`
-
-```sh
-$ deno cache mod.ts
 ```
 
 ## Similar projects
@@ -88,7 +87,7 @@ $ deno cache mod.ts
 
 - 0.1.2 (Oct 10, 2023)
 
-  - Update reamde.
+  - Update README.
 
 - 0.1.0 (Oct 9, 2023)
 
