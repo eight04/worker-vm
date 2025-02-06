@@ -4,8 +4,8 @@
     "version": "deno run -A https://deno.land/x/version@v1.1.1/index.ts",
     "push": "git push --atomic origin master v$(deno task version get)",
 
-    "test": "deno task test-net && deno task test-no-net",
-    "test-net": "ALLOW_NET=1 deno test --unstable-worker-options --allow-env=ALLOW_NET --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --fail-fast --no-check --coverage=cov_net && deno coverage cov_net",
-    "test-no-net": "ALLOW_NET=0 deno test --unstable-worker-options --allow-env=ALLOW_NET --allow-read=worker.ts --fail-fast --no-check --coverage=cov_no_net && deno coverage cov_no_net"
+    "test": "deno task test-net && deno task test-no-net && deno coverage cov_net cov_no_net",
+    "test-net": "ALLOW_NET=1 deno test --unstable-worker-options --allow-env=ALLOW_NET --allow-read=worker.ts --allow-net=jsonplaceholder.typicode.com:443 --fail-fast --no-check --coverage=cov_net",
+    "test-no-net": "ALLOW_NET=0 deno test --unstable-worker-options --allow-env=ALLOW_NET --allow-read=worker.ts --fail-fast --no-check --coverage=cov_no_net"
   }
 }
