@@ -26,20 +26,12 @@ console.log(await vm.call("sum", 2, 3)); // 5
 vm.close(); // terminate the worker
 ```
 
-## Default permissions
+## CLI permissions
 
 - `--unstable-worker-options` - permission options in worker is an unstable feature.
 - `--allow-read=path/to/worker.ts` - to launch the worker.
 
-## FAQ
-
-### `NotCapable` error not found
-
-According to Deno documentation [`Deno.errors.NotCapable`](https://docs.deno.com/api/deno/~/Deno.errors.NotCapable):
-
-> Before Deno 2.0, this condition was covered by the PermissionDenied error.
-
-Install `deno` version 2.0 or later should resolve the issue.
+## Common issues
 
 ### The code may terminate the worker
 
@@ -71,6 +63,12 @@ const vm = new VM({
 ```sh
 $ deno task test
 ```
+
+> NOTE: `NotCapable` error not found.
+>
+> According to Deno documentation [`Deno.errors.NotCapable`](https://docs.deno.com/api/deno/~/Deno.errors.NotCapable): "Before Deno 2.0, this condition was covered by the PermissionDenied error."
+>
+> Install `deno` version 2.0 or later should resolve the issue.
 
 ### Update Deno built-in types
 
