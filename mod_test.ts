@@ -24,6 +24,8 @@ const withVM = (
   };
 };
 
+const ALLOW_NET = Boolean(+Deno.env.get("ALLOW_NET"));
+
 Deno.test({
   name: "VM.run",
   fn: withVM(async (vm) => {
@@ -135,7 +137,7 @@ Deno.test({
       },
     }
   ),
-  ignore: !+(Deno.env.get("ALLOW_NET") ?? 0),
+  ignore: !ALLOW_NET,
 });
 
 Deno.test({
@@ -149,7 +151,7 @@ Deno.test({
       `NotCapable: Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
     );
   }),
-  ignore: !+(Deno.env.get("ALLOW_NET") ?? 0),
+  ignore: !ALLOW_NET,
 });
 
 Deno.test({
@@ -163,7 +165,7 @@ Deno.test({
       `NotCapable: Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
     );
   }),
-  ignore: Boolean(+(Deno.env.get("ALLOW_NET") ?? 0)),
+  ignore: ALLOW_NET,
 });
 
 Deno.test({
@@ -181,5 +183,5 @@ Deno.test({
       `NotCapable: Can't escalate parent thread permissions`
     );
   },
-  ignore: Boolean(+(Deno.env.get("ALLOW_NET") ?? 0)),
+  ignore: ALLOW_NET,
 });
