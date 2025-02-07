@@ -1,6 +1,7 @@
 /// <reference types="./lib.deno.d.ts" />
 
 import {
+  assert,
   assertEquals,
   assertRejects,
   assertStringIncludes,
@@ -109,9 +110,10 @@ Deno.test({
   name: "Deno.open",
   fn: withVM(async (vm) => {
     const err = await assertRejects(() => vm.run("Deno.open('test')"));
+    assert(String(err).match(/PermissionDenied|NotCapable/));
     assertStringIncludes(
       String(err),
-      'NotCapable: Requires read access to "test", run again with the --allow-read flag'
+      'Requires read access to "test", run again with the --allow-read flag'
     );
   }),
 });
@@ -146,9 +148,10 @@ Deno.test({
     const err = await assertRejects(() =>
       vm.run(`fetch('https://jsonplaceholder.typicode.com/todos/1')`)
     );
+    assert(String(err).match(/PermissionDenied|NotCapable/));
     assertStringIncludes(
       String(err),
-      `NotCapable: Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
+      `Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
     );
   }),
   ignore: !ALLOW_NET,
@@ -160,9 +163,10 @@ Deno.test({
     const err = await assertRejects(() =>
       vm.run(`fetch('https://jsonplaceholder.typicode.com/todos/1')`)
     );
+    assert(String(err).match(/PermissionDenied|NotCapable/));
     assertStringIncludes(
       String(err),
-      `NotCapable: Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
+      `Requires net access to "jsonplaceholder.typicode.com:443", run again with the --allow-net flag`
     );
   }),
   ignore: ALLOW_NET,
@@ -178,9 +182,10 @@ Deno.test({
         },
       });
     });
+    assert(String(err).match(/PermissionDenied|NotCapable/));
     assertStringIncludes(
       String(err),
-      `NotCapable: Can't escalate parent thread permissions`
+      `Can't escalate parent thread permissions`
     );
   },
   ignore: ALLOW_NET,
