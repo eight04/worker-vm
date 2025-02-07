@@ -83,7 +83,7 @@ $ deno task types
 
 ## Changelog
 
-- next (Jan 19, 2025)
+- 0.2.1 (Feb 7, 2025)
 
   - Add: `permissions` option.
 
