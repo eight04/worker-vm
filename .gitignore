@@ -1,1 +1,3 @@
-cov_profile
+cov_*
+node_modules
+
